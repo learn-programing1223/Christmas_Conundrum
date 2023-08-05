@@ -29,9 +29,6 @@ public class Robot{
     public void straight(int distance,int rev, double power) {
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        boolean drive = true;
-        double cur_pos = leftBack.getCurrentPosition();
 
         while (Math.abs(leftBack.getCurrentPosition()- distance)>0) {
 
@@ -61,8 +58,20 @@ public class Robot{
         rightBack.setPower(0);
     }
 
-    public void Strafe(int distance, double power,int dir) {
-        
+    public void Strafe(double distance, double power,int dir) {
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+        while(Math.abs(leftBack.getCurrentPosition()-distance)<0){
+            leftFront.setPower(power*dir*-1);
+            leftBack.setPower(power*dir);
+            rightFront.setPower(power*dir);
+            rightBack.setPower(power*dir*-1);
+        }
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
     }
 }
 
