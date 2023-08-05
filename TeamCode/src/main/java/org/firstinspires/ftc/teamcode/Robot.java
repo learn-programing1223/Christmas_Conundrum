@@ -45,14 +45,24 @@ public class Robot{
         rightBack.setPower(0);
         rightFront.setPower(0);
     }
-    public void TurnTo(int angle, double power,boolean dir){
-        double cur_angle =  imu.getAngularOrientation().firstAngle;
+    public void TurnTo(int angle, double power,int dir){
+        double cur_angle  =  imu.getAngularOrientation().firstAngle;
         double dis =  angle - cur_angle;
 
         while(Math.abs(angle - imu.getAngularOrientation().firstAngle) < 0.1){
-
+            leftFront.setPower(power*-1*dir);
+            leftBack.setPower(power*-1*dir);
+            rightFront.setPower(power*dir);
+            rightBack.setPower(power*dir);
         }
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+
+    public void Strafe(int distance, double power,int dir) {
+        
     }
 }
 
-//hskfaldjsaflkds
