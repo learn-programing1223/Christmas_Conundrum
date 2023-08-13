@@ -42,21 +42,52 @@ public class Robot{
         rightBack.setPower(0);
         rightFront.setPower(0);
     }
-    public void TurnTo(int angle, double power,int dir){
-        double cur_angle  =  imu.getAngularOrientation().firstAngle;
-        double dis =  angle - cur_angle;
+    public double angleWrap360(double angle){
+            while(angle<0 || angle>360){
+                if(angle<0){angle+=360;}
+                if(angle>360){angle-=360;}
+            }
+        return angle;
+    }
 
-        while(Math.abs(angle - imu.getAngularOrientation().firstAngle) < 0.1){
-            leftFront.setPower(power*-1*dir);
-            leftBack.setPower(power*-1*dir);
-            rightFront.setPower(power*dir);
-            rightBack.setPower(power*dir);
+    public void TurnTo(int angle, double power) {
+        double cur_angle = angleWrap360(Math.toDegrees(imu.getAngularOrientation().firstAngle));
+        double tar_angle = angleWrap360(angle);
+        int dir;
+        double e = 360 - cur_angle;
+        tar_angle = angleWrap360(tar_angle + e);
+
+        if (tar_angle <= 180) {
+            dir = 1;
+        } else {
+            dir = -1;
+        }
+
+        while (Math.abs(Math.toRadians(angle) - imu.getAngularOrientation().firstAngle) > 0.05) {
+            leftFront.setPower(power * -1 * dir);
+            leftBack.setPower(power * -1 * dir);
+            rightFront.setPower(power * dir);
+            rightBack.setPower(power * dir);
         }
         leftFront.setPower(0);
         leftBack.setPower(0);
         rightFront.setPower(0);
         rightBack.setPower(0);
+
+        //check if it turns right or left for positive vs. negative
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void Strafe(double distance, double power,int dir) {
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

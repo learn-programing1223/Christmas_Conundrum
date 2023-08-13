@@ -35,6 +35,8 @@ public class Drive extends LinearOpMode {
         else{
             ratio = vector/max*.8;
         }
+
+        //you never actually set the motor powers
     }
 
 }
