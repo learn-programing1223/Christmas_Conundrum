@@ -76,7 +76,7 @@ public class Drive extends LinearOpMode {
             telemetry.update();
 
         }
-        //you never actually set the motor powers
+
     }
 
 }
