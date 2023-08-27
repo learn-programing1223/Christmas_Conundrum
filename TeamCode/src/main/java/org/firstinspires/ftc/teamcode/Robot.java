@@ -6,20 +6,42 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Robot{
 
-    public DcMotor leftBack, leftFront, rightFront, rightBack;
+    public DcMotor leftBack, leftFront, rightFront, rightBack, fourBar;
+    public Servo arm, clawLeft, clawRight;
     public BNO055IMU imu;
     public double TickToInches; //Add value later
+    public boolean clawClosed = false;
+    public boolean armDown = true;
 
     public Robot(HardwareMap hardwareMap, LinearOpMode linearOpMode){
-        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "lb");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rb");
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
+
+        fourBar = hardwareMap.get(DcMotorEx.class, "fourBar");
+        arm = hardwareMap.get(Servo.class, "arm");
+        clawLeft = hardwareMap.get(Servo.class, "leftClaw");
+        clawRight = hardwareMap.get(Servo.class, "rightClaw");
+
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+//        fourBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        fourBar.setDirection(DcMotorSimple.Direction.REVERSE);
+//        fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        fourBar.setTargetPosition(0);
+//        fourBar.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fourBar.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -77,16 +99,29 @@ public class Robot{
         //check if it turns right or left for positive vs. negative
     }
 
+    //arm goes from 0.3 to 0.75
+    //clawLeft goes from 0.4 to 0.7
+    //clawRight goes from 0.1 to 0.4
 
+    public void claw(){
+        if(clawClosed) {
+            clawRight.setPosition(0.4);
+            clawLeft.setPosition(0.4);
+        } else {
+            clawRight.setPosition(0.06);
+            clawLeft.setPosition(0.74);
+        }
+        clawClosed = !clawClosed;
+    }
 
-
-
-
-
-
-
-
-
+    public void moveArm(){
+        if(armDown) {
+            arm.setPosition(0.3);
+        } else {
+            arm.setPosition(0.75);
+        }
+        armDown = !armDown;
+    }
 
 
     public void Strafe(double distance, double power,int dir) {
