@@ -1,20 +1,32 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
+
 public class Robot{
 
+    HardwareMap hardwareMap;
     public DcMotor leftBack, leftFront, rightFront, rightBack, fourBar;
     public Servo arm, clawLeft, clawRight;
+    public DistanceSensor dist;
     public BNO055IMU imu;
+    public OpenCvWebcam webcam;
     public double TickToInches; //Add value later
     public boolean clawClosed = false;
     public boolean armDown = true;
@@ -30,24 +42,51 @@ public class Robot{
         clawLeft = hardwareMap.get(Servo.class, "leftClaw");
         clawRight = hardwareMap.get(Servo.class, "rightClaw");
 
+        dist = hardwareMap.get(DistanceSensor.class, "dist");
+
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-//        fourBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        fourBar.setDirection(DcMotorSimple.Direction.REVERSE);
-//        fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        fourBar.setTargetPosition(0);
-//        fourBar.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        fourBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        fourBar.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        fourBar.setTargetPosition(0);
+        fourBar.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//        fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        fourBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        fourBar.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
+        this.hardwareMap = hardwareMap;
+
     }
+
+    public void initOpenCV() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam.setPipeline(new cameraPipeline());
+        webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+        OpenCvWebcam finalWebcam = webcam;
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                finalWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+            @Override
+            public void onError(int errorCode) {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
+    }
+
+
+
     public void straight(int distance,int rev, double power) {
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
