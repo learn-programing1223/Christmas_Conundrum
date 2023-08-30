@@ -111,7 +111,7 @@ public class Robot{
         return angle;
     }
 
-    public void TurnTo(int angle, double power) {
+    public void turnTo(int angle, double power) {
         double cur_angle = angleWrap360(Math.toDegrees(imu.getAngularOrientation().firstAngle));
         double tar_angle = angleWrap360(angle);
         int dir;
@@ -178,5 +178,6 @@ public class Robot{
         rightFront.setPower(0);
         rightBack.setPower(0);
     }
+
 }
 

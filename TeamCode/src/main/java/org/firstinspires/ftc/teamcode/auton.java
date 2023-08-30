@@ -14,9 +14,27 @@ public class auton extends LinearOpMode {
         FtcDashboard.getInstance().startCameraStream(bot.webcam, 60);
 
         waitForStart();
-        telemetry.addData("white Pixels: ", cameraPipeline.whitePixels);
-        telemetry.update();
-        sleep(5000);
+        if (!bot.clawClosed) {
+            bot.claw();
+        }
+        bot.moveArm();
+        bot.straight(4, 1, .2);
+        bot.claw();
+        bot.straight(4, -1, .2);
+        bot.moveArm();
+        if (cameraPipeline.whitePixels < 40000) {
+            //orange
+            bot.turnTo(90, .2);
+            bot.straight(16, 1, 0.4);
+            bot.turnTo(0, .4);
+            bot.straight(16, 1, 0.7);
+        }
+        else {
+            bot.turnTo(-90, .2);
+            bot.straight(16, 1, 0.4);
+            bot.turnTo(0, .4);
+            bot.straight(16, 1, 0.7);
+        }
     }
 }
 
