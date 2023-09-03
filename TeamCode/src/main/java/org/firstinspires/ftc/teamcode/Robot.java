@@ -31,6 +31,9 @@ public class Robot{
     public boolean clawClosed = false;
     public boolean armDown = true;
 
+    final static double TICKS_TO_INCH_STRAIGHT = 19.5;
+    final static double TICKS_TO_INCH_STRAFE = 30;
+
     public Robot(HardwareMap hardwareMap, LinearOpMode linearOpMode){
         leftBack = hardwareMap.get(DcMotorEx.class, "lb");
         rightBack = hardwareMap.get(DcMotorEx.class, "rb");
@@ -47,6 +50,19 @@ public class Robot{
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         fourBar.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fourBar.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -89,9 +105,9 @@ public class Robot{
 
     public void straight(int distance,int rev, double power) {
 
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        while (Math.abs(leftBack.getCurrentPosition()- distance)>0) {
+        while (Math.abs(leftFront.getCurrentPosition())<=distance * TICKS_TO_INCH_STRAIGHT) {
 
             leftFront.setPower(power * rev);
             leftBack.setPower(power * rev);
@@ -164,10 +180,10 @@ public class Robot{
 
 
     public void Strafe(double distance, double power,int dir) {
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-        while(Math.abs(leftBack.getCurrentPosition()-distance)<0){
+        while(Math.abs(leftFront.getCurrentPosition())<=distance * TICKS_TO_INCH_STRAFE){
             leftFront.setPower(power*dir*-1);
             leftBack.setPower(power*dir);
             rightFront.setPower(power*dir);
