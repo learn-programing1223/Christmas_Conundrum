@@ -22,6 +22,7 @@ public class cameraPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Mat output = input.clone();
+        wpc=0;
 //        Imgproc.cvtColor(input, output, Imgproc.COLOR_RGBA2RGB);
         Size dimensions = input.size();
         double height = dimensions.height;

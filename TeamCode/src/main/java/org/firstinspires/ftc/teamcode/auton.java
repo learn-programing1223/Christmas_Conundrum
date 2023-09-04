@@ -25,10 +25,14 @@ public class auton extends LinearOpMode {
         telemetry.update();
 
         sleep(2000);
+//          strafing in negative directions is going to the right
 
-        if(cameraPipeline.whitePixels < 30000) {
+        //if orange, strafe left
+        if(cameraPipeline.whitePixels < 1500) {
             bot.Strafe(24, 0.4, 1);
         }
+
+        //if white, strafe right
         else{
             bot.Strafe(36, 0.4, -1);
         }
