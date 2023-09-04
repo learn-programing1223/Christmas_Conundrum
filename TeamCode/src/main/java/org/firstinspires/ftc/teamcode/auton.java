@@ -29,7 +29,7 @@ public class auton extends LinearOpMode {
 
         //if orange, strafe left
         if(cameraPipeline.whitePixels < 1500) {
-            bot.Strafe(24, 0.4, 1);
+            bot.Strafe(36, 0.4, 1);
         }
 
         //if white, strafe right

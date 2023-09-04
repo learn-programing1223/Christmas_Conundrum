@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -33,6 +34,12 @@ public class Robot{
 
     final static double TICKS_TO_INCH_STRAIGHT = 19.5;
     final static double TICKS_TO_INCH_STRAFE = 30;
+
+    public double kp = 1;
+    public double ki = 0;
+    public double kd = 0;
+
+    ElapsedTime PIDtimer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap, LinearOpMode linearOpMode){
         leftBack = hardwareMap.get(DcMotorEx.class, "lb");
@@ -181,13 +188,34 @@ public class Robot{
 
     public void Strafe(double distance, double power,int dir) {
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+        double targetAngle = imu.getAngularOrientation().firstAngle;
+        double currentAngle;
+        double correction;
+        double intSum = 0;
+        double derivative;
+        double error;
+        double prevErr = 0;
+        double totalCorrection;
+        PIDtimer.reset();
+        double cycleTime = PIDtimer.seconds();
 
         while(Math.abs(leftFront.getCurrentPosition())<=distance * TICKS_TO_INCH_STRAFE){
-            leftFront.setPower(power*dir*-1);
-            leftBack.setPower(power*dir);
-            rightFront.setPower(power*dir);
-            rightBack.setPower(power*dir*-1);
+            currentAngle = imu.getAngularOrientation().firstAngle;
+            error = targetAngle - currentAngle;
+            correction = kp * error;
+            intSum += error * ki * cycleTime;
+            derivative = kd * (prevErr - error)/cycleTime;
+            prevErr = error;
+            totalCorrection = correction+intSum+derivative;
+
+
+            leftFront.setPower(power*dir*-1 - totalCorrection);
+            leftBack.setPower(power*dir - totalCorrection);
+            rightFront.setPower(power*dir + totalCorrection);
+            rightBack.setPower(power*dir*-1 + totalCorrection);
+
+            cycleTime = PIDtimer.seconds();
+            PIDtimer.reset();
         }
         leftFront.setPower(0);
         leftBack.setPower(0);
