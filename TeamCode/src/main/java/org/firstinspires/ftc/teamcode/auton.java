@@ -16,78 +16,69 @@ public class auton extends LinearOpMode {
 
         waitForStart();
 
+//          strafing in negative directions is going to the right
+
+
+        //close claw and raise
         bot.claw();
         bot.fourBar.setPower(0.8);
-        bot.fourBar.setTargetPosition(Math.round(200));
+        bot.fourBar.setTargetPosition(Math.round(170));
 
-        sleep(1000);
+
+        sleep(100);
         telemetry.addData("white pixels: ", cameraPipeline.whitePixels);
         telemetry.update();
 
-        sleep(2000);
-//          strafing in negative directions is going to the right
+        //check white pixels
+        boolean orange = cameraPipeline.whitePixels < 1500;
 
-        //if orange, strafe left
-        if(cameraPipeline.whitePixels < 1500) {
-            bot.Strafe(36, 0.4, 1);
-        }
+        //forwards
+        bot.straight(16, 1, .2);
+        sleep(100);
 
-        //if white, strafe right
-        else{
+        //release
+        bot.claw();
+
+        sleep(100);
+
+        //back
+        bot.straight(7, -1, .2);
+        sleep(100);
+
+        //lower
+        bot.fourBar.setPower(0.2);
+        bot.fourBar.setTargetPosition(Math.round(0));
+
+        sleep(100);
+
+
+        if (orange) {
+            //orange
             bot.Strafe(36, 0.4, -1);
+            sleep(100);
+
+        }
+        else {
+            bot.Strafe(36, 0.4, 1);
+            sleep(100);
+
+        }
+
+        bot.turnTo(0,0.4);
+
+        bot.straight(73, 1, 0.4);
+
+        sleep(100);
+
+        bot.turnTo(0,0.4);
+        if(orange){
+            bot.Strafe(34, 0.4, -1);
+        }
+        else{
+            bot.Strafe(34,0.4,1);
         }
 
 
-
-
-//        if(cameraPipeline.whitePixels < 30000) {
-//            bot.fourBar.setPower(0.4);
-//            bot.fourBar.setTargetPosition(180);
-//        }
-//        else{
-//            bot.claw();
-//            bot.claw();
-//            bot.claw();
-//        }
-
-
-//        bot.claw();
-//        bot.moveArm();
-//        sleep(1000);
-//        bot.initOpenCV();
-//        telemetry.addData("white pixels: ", cameraPipeline.whitePixels);
-//        telemetry.update();
-//        sleep(2000);
-
-
-
-
-
-
-
-//        if (!bot.clawClosed) {
-//            bot.claw();
-//        }
-//        bot.moveArm();
-//        bot.straight(4, 1, .2);
-//        bot.claw();
-//        bot.straight(4, -1, .2);
-//        bot.moveArm();
-//        if (cameraPipeline.whitePixels < 40000) {
-//            //orange
-//            bot.turnTo(90, .2);
-//            bot.straight(16, 1, 0.4);
-//            bot.turnTo(0, .4);
-//            bot.straight(16, 1, 0.7);
-//        }
-//        else {
-//            bot.turnTo(-90, .2);
-//            bot.straight(16, 1, 0.4);
-//            bot.turnTo(0, .4);
-//            bot.straight(16, 1, 0.7);
-//        }
-
-//        bot.Strafe(24,0.4, 1);
     }
 }
 

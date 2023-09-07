@@ -113,13 +113,32 @@ public class Robot{
     public void straight(int distance,int rev, double power) {
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double targetAngle = imu.getAngularOrientation().firstAngle;
+        double currentAngle;
+        double correction;
+        double intSum = 0;
+        double derivative;
+        double error;
+        double prevErr = 0;
+        double totalCorrection;
+        PIDtimer.reset();
+        double cycleTime = PIDtimer.seconds();
 
         while (Math.abs(leftFront.getCurrentPosition())<=distance * TICKS_TO_INCH_STRAIGHT) {
+            currentAngle = imu.getAngularOrientation().firstAngle;
+            error = targetAngle - currentAngle;
+            correction = kp * error;
+            intSum += error * ki * cycleTime;
+            derivative = kd * (prevErr - error)/cycleTime;
+            prevErr = error;
+            totalCorrection = correction+intSum+derivative;
 
-            leftFront.setPower(power * rev);
-            leftBack.setPower(power * rev);
-            rightFront.setPower(power * rev);
-            rightBack.setPower(power * rev);
+            leftFront.setPower(power * rev - totalCorrection);
+            leftBack.setPower(power * rev - totalCorrection);
+            rightFront.setPower(power * rev + totalCorrection);
+            rightBack.setPower(power * rev + totalCorrection);
+            cycleTime = PIDtimer.seconds();
+            PIDtimer.reset();
         }
         leftFront.setPower(0);
         leftBack.setPower(0);
@@ -148,6 +167,7 @@ public class Robot{
         }
 
         while (Math.abs(Math.toRadians(angle) - imu.getAngularOrientation().firstAngle) > 0.05) {
+
             leftFront.setPower(power * -1 * dir);
             leftBack.setPower(power * -1 * dir);
             rightFront.setPower(power * dir);
