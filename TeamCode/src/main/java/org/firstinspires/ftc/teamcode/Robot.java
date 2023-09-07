@@ -60,7 +60,7 @@ public class Robot{
 
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -146,6 +146,44 @@ public class Robot{
         rightBack.setPower(0);
         rightFront.setPower(0);
     }
+
+    public void straight2(int distance,int rev, double power) {
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double targetAngle = imu.getAngularOrientation().firstAngle;
+        double currentAngle;
+        double correction;
+        double intSum = 0;
+        double derivative;
+        double error;
+        double prevErr = 0;
+        double totalCorrection;
+        PIDtimer.reset();
+        double cycleTime = PIDtimer.seconds();
+
+        while (Math.abs(leftFront.getCurrentPosition())<=distance * TICKS_TO_INCH_STRAIGHT) {
+            currentAngle = imu.getAngularOrientation().firstAngle;
+            error = targetAngle - currentAngle;
+            correction = kp * error;
+            intSum += error * ki * cycleTime;
+            derivative = kd * (prevErr - error)/cycleTime;
+            prevErr = error;
+            totalCorrection = correction+intSum+derivative;
+
+            leftFront.setPower(power * rev - totalCorrection);
+            leftBack.setPower(power * rev - totalCorrection + 0.06);
+            rightFront.setPower(power * rev + totalCorrection);
+            rightBack.setPower(power * rev + totalCorrection);
+            cycleTime = PIDtimer.seconds();
+            PIDtimer.reset();
+        }
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
+    }
+
+
     public double angleWrap360(double angle){
             while(angle<0 || angle>360){
                 if(angle<0){angle+=360;}
