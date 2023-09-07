@@ -40,6 +40,7 @@ public class Robot{
     public double kd = 0;
 
     ElapsedTime PIDtimer = new ElapsedTime();
+    ElapsedTime pickupTimer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap, LinearOpMode linearOpMode){
         leftBack = hardwareMap.get(DcMotorEx.class, "lb");
